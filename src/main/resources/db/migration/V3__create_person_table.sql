@@ -1,0 +1,7 @@
+CREATE SEQUENCE person_seq START WITH 10000 INCREMENT BY 1;
+
+CREATE TABLE person (
+    id          BIGINT NOT NULL PRIMARY KEY DEFAULT NEXTVAL('person_seq') ,
+    first_name  VARCHAR(255) NOT NULL,
+    last_name   VARCHAR(255) NOT NULL
+);

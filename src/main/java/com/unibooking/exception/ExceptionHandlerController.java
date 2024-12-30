@@ -10,30 +10,38 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ExceptionHandlerController {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
     @ExceptionHandler(BuildingNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleBuildingNotFoundException(BuildingNotFoundException buildingNotFoundException, HttpServletRequest request) {
+    public ResponseEntity<ExceptionResponse> handleBuildingNotFoundException(
+            BuildingNotFoundException buildingNotFoundException, HttpServletRequest request
+    ) {
+        ExceptionResponse response = new ExceptionResponse(buildingNotFoundException, request, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
 
-        ExceptionResponse response = ExceptionResponse.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .error(buildingNotFoundException.getMessage())
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now().format(formatter))
-                .build();
+    @ExceptionHandler(RoomNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleRoomNotFoundException(
+            RoomNotFoundException roomNotFoundException, HttpServletRequest request
+    ) {
+        ExceptionResponse response = new ExceptionResponse(roomNotFoundException, request, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
 
+    @ExceptionHandler(PersonNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handlePersonNotFoundException(
+            PersonNotFoundException personNotFoundException, HttpServletRequest request
+    ) {
+        ExceptionResponse response = new ExceptionResponse(personNotFoundException, request, HttpStatus.NOT_FOUND);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletRequest request) {
+    public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException e, HttpServletRequest request
+    ) {
         StringBuilder strBuilder = new StringBuilder();
 
         e.getBindingResult().getAllErrors().forEach((error) -> {
@@ -48,12 +56,7 @@ public class ExceptionHandlerController {
             strBuilder.append(String.format("%s: %s\n", fieldName, message));
         });
 
-        ExceptionResponse response = ExceptionResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error(strBuilder.toString())
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now().format(formatter))
-                .build();
+        ExceptionResponse response = new ExceptionResponse(strBuilder.toString(), request, HttpStatus.BAD_REQUEST);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }

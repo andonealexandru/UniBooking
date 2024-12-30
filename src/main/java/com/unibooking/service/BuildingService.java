@@ -1,6 +1,7 @@
 package com.unibooking.service;
 
 import com.unibooking.domain.Building;
+import com.unibooking.exception.BuildingNotFoundException;
 import com.unibooking.repository.BuildingRepository;
 import com.unibooking.service.dto.BuildingDTO;
 import com.unibooking.service.mapper.BuildingMapper;
@@ -19,6 +20,12 @@ public class BuildingService {
     public void createBuilding(BuildingDTO buildingDTO) {
         Building newBuilding = buildingMapper.toEntity(buildingDTO);
         buildingRepository.save(newBuilding);
+    }
+
+    public Building findBuildingByCodeStrict(String code) {
+        return buildingRepository
+                .findByCode(code)
+                .orElseThrow(() -> new BuildingNotFoundException("Building " + code + " not found."));
     }
 
     public Page<BuildingDTO> findAllBuildings(Pageable pageable) {

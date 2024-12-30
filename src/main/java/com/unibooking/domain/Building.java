@@ -18,4 +18,6 @@ public class Building {
 
     @Column(name = "address")
     private String address;
+
+    //TODO: add available hours
 }
