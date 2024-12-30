@@ -38,6 +38,14 @@ public class ExceptionHandlerController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    @ExceptionHandler(RoomNotAvailableException.class)
+    public ResponseEntity<ExceptionResponse> handleRoomNotAvailableException(
+            RoomNotAvailableException roomNotAvailableException, HttpServletRequest request
+    ) {
+        ExceptionResponse response = new ExceptionResponse(roomNotAvailableException, request, HttpStatus.CONFLICT);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException e, HttpServletRequest request
