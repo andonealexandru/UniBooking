@@ -4,6 +4,8 @@ import com.unibooking.service.dto.BookingDTO;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+import java.time.LocalTime;
+
 public class TimeRangeValidator implements ConstraintValidator<ValidTimeRange, BookingDTO> {
 
     @Override
@@ -12,9 +14,9 @@ public class TimeRangeValidator implements ConstraintValidator<ValidTimeRange, B
             return true;
         }
 
-        int startHour = dto.getStartTime();
-        int endHour = dto.getEndTime();
+        LocalTime startHour = dto.getStartTime();
+        LocalTime endHour = dto.getEndTime();
 
-        return startHour <= endHour;
+        return startHour.isBefore(endHour);
     }
 }

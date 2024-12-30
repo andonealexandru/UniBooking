@@ -21,6 +21,7 @@ public class BookingService {
     private final BookingMapper bookingMapper;
 
     private final RoomService roomService;
+    private final BuildingService buildingService;
     private final PersonService personService;
 
     public void createBooking(BookingDTO bookingDTO) {
@@ -40,7 +41,8 @@ public class BookingService {
     }
 
     public Boolean isRoomAvailableForInterval(Room room, LocalDateTime start, LocalDateTime end) {
-        return !bookingRepository.existsByRoomAndTimeOverlap(room, start, end);
+        return !bookingRepository.existsByRoomAndTimeOverlap(room, start, end) &&
+                buildingService.isBuildingAvailableForInterval(room.getBuilding(), start.toLocalTime(), end.toLocalTime());
     }
 
     public void findRoomAvailableForInterval() {

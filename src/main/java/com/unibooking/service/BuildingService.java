@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalTime;
+
 @Component
 @AllArgsConstructor
 public class BuildingService {
@@ -32,6 +34,11 @@ public class BuildingService {
         return buildingRepository
                 .findAll(pageable)
                 .map(buildingMapper::toDto);
+    }
+
+    public Boolean isBuildingAvailableForInterval(Building building, LocalTime start, LocalTime end) {
+        return start.isAfter(building.getStart().minusSeconds(1)) &&
+                end.isBefore(building.getEnd().plusSeconds(1));
     }
 
 }

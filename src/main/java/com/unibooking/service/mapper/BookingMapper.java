@@ -7,18 +7,17 @@ import org.mapstruct.Mapping;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Mapper(componentModel = "spring")
 public interface BookingMapper {
 
-    @Mapping(target = "start", expression = "java(toInstant(dto.getDate(), dto.getStartTime()))")
-    @Mapping(target = "end", expression = "java(toInstant(dto.getDate(), dto.getEndTime()))")
+    @Mapping(target = "start", expression = "java(toLocalDateTime(dto.getDate(), dto.getStartTime()))")
+    @Mapping(target = "end", expression = "java(toLocalDateTime(dto.getDate(), dto.getEndTime()))")
     Booking toEntity(BookingDTO dto);
 
-    default LocalDateTime toInstant(LocalDate date, Integer hourMinute) {
-        int hours = hourMinute / 100;
-        int minutes = hourMinute % 100;
-        return date.atTime(hours, minutes);
+    default LocalDateTime toLocalDateTime(LocalDate date, LocalTime time) {
+        return date.atTime(time);
     }
 
 }

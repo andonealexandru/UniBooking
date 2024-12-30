@@ -1,8 +1,11 @@
 package com.unibooking.service.dto;
 
+import com.unibooking.validation.ValidTimeRange;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Value;
+
+import java.time.LocalTime;
 
 @Value
 @Builder
@@ -13,4 +16,7 @@ public class BuildingDTO {
 
     @NotNull(message = "You must provide an address for the building")
     String address;
+
+    LocalTime start;
+    LocalTime end;
 }

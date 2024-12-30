@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Value;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Value
 @Builder
@@ -16,12 +17,10 @@ public class BookingDTO {
     LocalDate date;
 
     @NotNull
-    @ValidTimeFormat
-    Integer startTime;
+    LocalTime startTime;
 
     @NotNull
-    @ValidTimeFormat
-    Integer endTime;
+    LocalTime endTime;
 
     @NotNull
     String roomCode;

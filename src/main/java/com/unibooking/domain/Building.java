@@ -3,6 +3,8 @@ package com.unibooking.domain;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalTime;
+
 @Entity
 @Table(name = "building")
 @Data
@@ -19,5 +21,10 @@ public class Building {
     @Column(name = "address")
     private String address;
 
-    //TODO: add available hours
+    @Column(name = "start_time")
+    private LocalTime start;
+
+    @Column(name = "end_time")
+    private LocalTime end;
+
 }
