@@ -10,7 +10,10 @@ import com.unibooking.service.mapper.BookingMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
@@ -43,6 +46,15 @@ public class BookingService {
     public Boolean isRoomAvailableForInterval(Room room, LocalDateTime start, LocalDateTime end) {
         return !bookingRepository.existsByRoomAndTimeOverlap(room, start, end) &&
                 buildingService.isBuildingAvailableForInterval(room.getBuilding(), start.toLocalTime(), end.toLocalTime());
+    }
+
+    public List<BookingDTO> findAllBookingsForRoomAndDate(String roomCode, LocalDate date) {
+        Room room = roomService.findRoomByCodeStrict(roomCode);
+
+        return bookingRepository
+                .findAllByRoomAndDate(room, date)
+                .stream().map(bookingMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public void findRoomAvailableForInterval() {

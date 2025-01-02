@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
@@ -19,4 +21,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     boolean existsByRoomAndTimeOverlap(@Param("room") Room room,
                                        @Param("startDate") LocalDateTime start,
                                        @Param("endDate") LocalDateTime end);
+
+    @Query("SELECT b FROM Booking b " +
+            "WHERE b.room = :room " +
+            "AND CAST(b.start AS date) >= :queryDate " +
+            "AND CAST(b.end AS date) <= :queryDate " +
+            "ORDER BY b.start ASC, b.end ASC")
+    List<Booking> findAllByRoomAndDate(@Param("room") Room room,
+                                       @Param("queryDate") LocalDate date);
 }
