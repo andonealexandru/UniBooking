@@ -4,7 +4,9 @@ import com.unibooking.domain.Booking;
 import com.unibooking.domain.Person;
 import com.unibooking.domain.Room;
 import com.unibooking.domain.enumeration.BookingStatus;
+import com.unibooking.exception.BookingNotFoundException;
 import com.unibooking.exception.RoomNotAvailableException;
+import com.unibooking.exception.UnauthorizedActionException;
 import com.unibooking.repository.BookingRepository;
 import com.unibooking.service.dto.BookingDTO;
 import com.unibooking.service.dto.BookingResponseDTO;
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -39,9 +42,7 @@ public class BookingService {
         Booking booking = bookingMapper.toEntity(bookingDTO);
 
         Room room = roomService.findRoomByCodeStrict(bookingDTO.getRoomCode());
-        if (!isRoomAvailableForInterval(room, booking.getStart(), booking.getEnd())) {
-            throw new RoomNotAvailableException("Room " + room.getCode() + " is not available for the selected time slot!");
-        }
+        checkRoomAvailability(room, booking.getStart(), booking.getEnd());
 
         Person person = authenticationService.getCurrentUser();
 
@@ -51,9 +52,47 @@ public class BookingService {
         bookingRepository.save(booking);
     }
 
-    public Boolean isRoomAvailableForInterval(Room room, LocalDateTime start, LocalDateTime end) {
-        return !bookingRepository.existsByRoomAndTimeOverlap(room, start, end) &&
-                buildingService.isBuildingAvailableForInterval(room.getBuilding(), start.toLocalTime(), end.toLocalTime());
+    public Booking findBookingByIdStrict(Long id) {
+        return bookingRepository.findById(id)
+                .orElseThrow(() -> new BookingNotFoundException("Booking " + id + " not found."));
+    }
+
+    public void updateBooking(Long id, BookingDTO bookingDTO) {
+        Booking booking = findBookingByIdStrict(id);
+
+        if (!Objects.equals(booking.getPerson().getId(), authenticationService.getCurrentUser().getId())){
+            throw new UnauthorizedActionException("Only the creator of the reservation can modify it!");
+        }
+
+        Room room = roomService.findRoomByCodeStrict(bookingDTO.getRoomCode());
+
+        booking.setStart(bookingDTO.getDate().atTime(bookingDTO.getStartTime()));
+        booking.setEnd(bookingDTO.getDate().atTime(bookingDTO.getEndTime()));
+        booking.setRoom(room);
+
+        checkRoomAvailability(room, booking.getStart(), booking.getEnd(), booking);
+
+        bookingRepository.save(booking);
+    }
+
+    public void checkRoomAvailability(Room room, LocalDateTime start, LocalDateTime end) {
+        checkRoomAvailability(room, start, end, null);
+    }
+
+    public void checkRoomAvailability(Room room, LocalDateTime start, LocalDateTime end, Booking booking) {
+        if (!isRoomAvailableForIntervalExcludingExistingBooking(room, start, end, booking))
+            throw new RoomNotAvailableException("Room " + room.getCode() + " is not available in the selected interval.");
+
+        if (!buildingService.isBuildingAvailableForInterval(room.getBuilding(), start.toLocalTime(), end.toLocalTime()))
+            throw new RoomNotAvailableException("Room " + room.getCode() + " is not available in the selected interval. Building is closed.");
+    }
+
+    public Boolean isRoomAvailableForIntervalExcludingExistingBooking(Room room, LocalDateTime start, LocalDateTime end, Booking booking) {
+        List<Booking> bookingsInInterval = bookingRepository
+                .findAllByRoomAndEndAfterAndStartBeforeAndStatusNotOrderByStartAsc(room, start, end, BookingStatus.CANCELED);
+        bookingsInInterval.remove(booking);
+
+        return bookingsInInterval.isEmpty();
     }
 
     public List<BookingResponseDTO> findAllBookingsForRoomAndDate(Long id, LocalDate date) {
@@ -80,21 +119,18 @@ public class BookingService {
         LocalDateTime start = LocalDateTime.now().minus(10, ChronoUnit.MINUTES);
         LocalDateTime end = LocalDateTime.now().plus(10, ChronoUnit.MINUTES);
 
-//        return bookingRepository
-//                .findByPersonAndStartBetweenAndStatus(currentUser, start, end, BookingStatus.PENDING)
-//                .map(bookingMapper::toResponseDto);
-
-        return bookingRepository.findById(10016L).map(bookingMapper::toResponseDto);
+        return bookingRepository
+                .findByPersonAndStartBetweenAndStatus(currentUser, start, end, BookingStatus.PENDING)
+                .map(bookingMapper::toResponseDto);
     }
 
     public Optional<BookingResponseDTO> findActiveBookingForCurrentUser() {
         Person currentUser = authenticationService.getCurrentUser();
         LocalDateTime currentTime = LocalDateTime.now();
 
-//        return bookingRepository
-//                .findByPersonAndStartBeforeAndEndAfterAndStatus(currentUser, currentTime, currentTime, BookingStatus.CHECKED_IN)
-//                .map(bookingMapper::toResponseDto);
-        return bookingRepository.findById(10012L).map(bookingMapper::toResponseDto);
+        return bookingRepository
+                .findByPersonAndStartBeforeAndEndAfterAndStatus(currentUser, currentTime, currentTime, BookingStatus.CHECKED_IN)
+                .map(bookingMapper::toResponseDto);
     }
 
     public Optional<BookingResponseWithPersonDTO> findLastBookingBeforeDateForRoom(Long roomId, LocalDateTime dateTime) {

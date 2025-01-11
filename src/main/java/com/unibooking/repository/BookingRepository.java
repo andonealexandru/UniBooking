@@ -49,5 +49,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByRoomAndStatusNotAndEndBetweenOrderByEndDesc(Room room, BookingStatus status, LocalDateTime start, LocalDateTime end);
 
+    // find all bookings overlapping
     List<Booking> findAllByRoomAndEndAfterAndStartBeforeAndStatusNotOrderByStartAsc(Room room, LocalDateTime start, LocalDateTime end, BookingStatus status);
 }

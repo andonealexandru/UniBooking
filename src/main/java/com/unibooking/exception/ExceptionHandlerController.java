@@ -54,6 +54,22 @@ public class ExceptionHandlerController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(BookingNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleBookingNotFoundException(
+            BookingNotFoundException bookingNotFoundException, HttpServletRequest request
+    ) {
+        ExceptionResponse response = new ExceptionResponse(bookingNotFoundException, request, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(UnauthorizedActionException.class)
+    public ResponseEntity<ExceptionResponse> handleUnauthorizedActionException(
+            UnauthorizedActionException unauthorizedActionException, HttpServletRequest request
+    ) {
+        ExceptionResponse response = new ExceptionResponse(unauthorizedActionException, request, HttpStatus.UNAUTHORIZED);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException e, HttpServletRequest request

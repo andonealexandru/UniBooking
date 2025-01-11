@@ -3,17 +3,13 @@ package com.unibooking.web;
 import com.unibooking.service.BookingService;
 import com.unibooking.service.dto.BookingDTO;
 import com.unibooking.service.dto.BookingResponseDTO;
-import com.unibooking.service.dto.BookingResponseWithPersonDTO;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -25,6 +21,12 @@ public class BookingController {
     @PostMapping
     private ResponseEntity<Void> createBooking(@RequestBody @Valid BookingDTO bookingDTO) {
         bookingService.createBooking(bookingDTO);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    private ResponseEntity<Void> updateBooking(@PathVariable Long id, @RequestBody @Valid BookingDTO bookingDTO) {
+        bookingService.updateBooking(id, bookingDTO);
         return ResponseEntity.noContent().build();
     }
 
