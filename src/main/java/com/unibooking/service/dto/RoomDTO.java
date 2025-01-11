@@ -14,4 +14,7 @@ public class RoomDTO {
     Integer capacity;
     @NotNull(message = "You must provide the building for the room")
     String buildingCode;
+
+    String workstationType;
+    Integer workstationCount;
 }

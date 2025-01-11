@@ -9,4 +9,6 @@ public class RoomResponseDTO {
     Long id;
     String code;
     Integer capacity;
+    String workstationType;
+    Integer workstationCount;
 }

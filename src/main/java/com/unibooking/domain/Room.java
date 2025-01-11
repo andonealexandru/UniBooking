@@ -1,5 +1,6 @@
 package com.unibooking.domain;
 
+import com.unibooking.domain.enumeration.WorkstationType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -23,6 +24,11 @@ public class Room {
     @JoinColumn(name = "building_id")
     private Building building;
 
-    //TODO: idea: number of workstations, workstations type
+    @Enumerated(value = EnumType.STRING)
+    @Column(name="workstation_type")
+    private WorkstationType workstationType;
+
+    @Column(name = "workstation_count")
+    private Integer workstationCount;
 
 }

@@ -1,6 +1,5 @@
 package com.unibooking.service.mapper;
 
-import com.unibooking.domain.Building;
 import com.unibooking.domain.Room;
 import com.unibooking.service.dto.RoomDTO;
 import com.unibooking.service.dto.RoomResponseDTO;
