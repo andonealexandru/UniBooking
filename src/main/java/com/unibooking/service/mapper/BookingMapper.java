@@ -25,6 +25,7 @@ public interface BookingMapper {
     BookingDTO toDto(Booking booking);
 
     @Mapping(target = "roomCode", source = "room.code")
+    @Mapping(target = "buildingCode", source = "room.building.code")
     @Mapping(target = "date", expression = "java(booking.getStart().toLocalDate())")
     @Mapping(target = "startTime", expression = "java(booking.getStart().toLocalTime().format(DateTimeFormatter.ofPattern(\"HH:mm\")))")
     @Mapping(target = "endTime", expression = "java(booking.getEnd().toLocalTime().format(DateTimeFormatter.ofPattern(\"HH:mm\")))")
