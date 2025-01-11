@@ -3,7 +3,6 @@ package com.unibooking.configuration;
 import com.unibooking.repository.PersonRepository;
 import com.unibooking.security.JwtAuthFilter;
 import com.unibooking.security.UserInfoService;
-import com.unibooking.service.PersonService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,10 +20,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(securedEnabled = true)
 @AllArgsConstructor
 public class SecurityConfig {
 
@@ -35,10 +38,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for stateless APIs
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration configuration = new CorsConfiguration();
+                    configuration.setAllowedOrigins(List.of("*"));
+                    configuration.setAllowedMethods(List.of("*"));
+                    configuration.setAllowedHeaders(List.of("*"));
+                    return configuration;
+                }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("api/auth/welcome", "api/auth/addNewUser", "api/auth/generateToken").permitAll()
-                        .requestMatchers("api/auth/user/**").hasAuthority("ROLE_USER")
-                        .requestMatchers("api/auth/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/api/auth/login", "/api/auth/signin").permitAll()
                         .anyRequest().authenticated() // Protect all other endpoints
                 )
                 .sessionManagement(sess -> sess

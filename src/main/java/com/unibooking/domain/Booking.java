@@ -1,5 +1,6 @@
 package com.unibooking.domain;
 
+import com.unibooking.domain.enumeration.BookingStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -28,5 +29,9 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "room_id")
     private Room room;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "status")
+    private BookingStatus status;
 
 }

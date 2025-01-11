@@ -6,6 +6,7 @@ import com.unibooking.repository.PersonRepository;
 import com.unibooking.service.dto.PersonDTO;
 import com.unibooking.service.mapper.PersonMapper;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 

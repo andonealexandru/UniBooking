@@ -46,6 +46,14 @@ public class ExceptionHandlerController {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
+    @ExceptionHandler(StartAfterEndException.class)
+    public ResponseEntity<ExceptionResponse> handleStartAfterEndException(
+            StartAfterEndException startAfterEndException, HttpServletRequest request
+    ) {
+        ExceptionResponse response = new ExceptionResponse(startAfterEndException, request, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException e, HttpServletRequest request
