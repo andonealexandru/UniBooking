@@ -5,6 +5,7 @@ import com.unibooking.domain.Person;
 import com.unibooking.domain.Room;
 import com.unibooking.domain.enumeration.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -45,10 +46,22 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     Optional<Booking> findByPersonAndStartBeforeAndEndAfterAndStatus(Person person, LocalDateTime start, LocalDateTime end, BookingStatus status);
 
-    List<Booking> findByRoomAndStatusNotAndStartBetweenOrderByStartAsc(Room room, BookingStatus status, LocalDateTime start, LocalDateTime end);
+    List<Booking> findByRoomAndStatusNotInAndStartBetweenOrderByStartAsc(Room room, List<BookingStatus> status, LocalDateTime start, LocalDateTime end);
 
-    List<Booking> findByRoomAndStatusNotAndEndBetweenOrderByEndDesc(Room room, BookingStatus status, LocalDateTime start, LocalDateTime end);
+    List<Booking> findByRoomAndStatusNotInAndEndBetweenOrderByEndDesc(Room room, List<BookingStatus> status, LocalDateTime start, LocalDateTime end);
 
     // find all bookings overlapping
-    List<Booking> findAllByRoomAndEndAfterAndStartBeforeAndStatusNotOrderByStartAsc(Room room, LocalDateTime start, LocalDateTime end, BookingStatus status);
+    List<Booking> findAllByRoomAndEndAfterAndStartBeforeAndStatusNotInOrderByStartAsc(Room room, LocalDateTime start, LocalDateTime end, List<BookingStatus> status);
+
+    @Modifying
+    @Query("UPDATE Booking b SET b.status = :newStatus WHERE b.end <= :date AND b.status = :oldStatus")
+    int updateReservationsWithEndBeforeDate(@Param("date") LocalDateTime date,
+                                            @Param("oldStatus") BookingStatus oldStatus,
+                                            @Param("newStatus") BookingStatus newStatus);
+
+    @Modifying
+    @Query("UPDATE Booking b SET b.status = :newStatus WHERE b.start <= :date AND b.status = :oldStatus")
+    int updateReservationsWithStartBeforeDate(@Param("date") LocalDateTime date,
+                                              @Param("oldStatus") BookingStatus oldStatus,
+                                              @Param("newStatus") BookingStatus newStatus);
 }

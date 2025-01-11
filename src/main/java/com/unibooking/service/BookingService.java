@@ -29,6 +29,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class BookingService {
 
+    public static final List<BookingStatus> NON_ACTIVE_STATUSES = List.of(BookingStatus.CANCELED, BookingStatus.FINISHED);
+    public static final Integer BOOKING_CHECK_IN_WINDOW = 10;
+
     private final BookingRepository bookingRepository;
 
     private final BookingMapper bookingMapper;
@@ -90,7 +93,7 @@ public class BookingService {
 
     public Boolean isRoomAvailableForIntervalExcludingExistingBooking(Room room, LocalDateTime start, LocalDateTime end, Booking booking) {
         List<Booking> bookingsInInterval = bookingRepository
-                .findAllByRoomAndEndAfterAndStartBeforeAndStatusNotOrderByStartAsc(room, start, end, BookingStatus.CANCELED);
+                .findAllByRoomAndEndAfterAndStartBeforeAndStatusNotInOrderByStartAsc(room, start, end, NON_ACTIVE_STATUSES);
         bookingsInInterval.remove(booking);
 
         return bookingsInInterval.isEmpty();
@@ -117,8 +120,8 @@ public class BookingService {
     public Optional<BookingResponseDTO> findBookingReadyForCheckInForCurrentUser() {
         Person currentUser = authenticationService.getCurrentUser();
 
-        LocalDateTime start = LocalDateTime.now().minus(10, ChronoUnit.MINUTES);
-        LocalDateTime end = LocalDateTime.now().plus(10, ChronoUnit.MINUTES);
+        LocalDateTime start = LocalDateTime.now().minus(BOOKING_CHECK_IN_WINDOW, ChronoUnit.MINUTES);
+        LocalDateTime end = LocalDateTime.now().plus(BOOKING_CHECK_IN_WINDOW, ChronoUnit.MINUTES);
 
         return bookingRepository
                 .findByPersonAndStartBetweenAndStatus(currentUser, start, end, BookingStatus.PENDING)
@@ -139,8 +142,8 @@ public class BookingService {
         Room room = roomService.findRoomByIdStrict(roomId);
         LocalDateTime startOfDay = dateTime.toLocalDate().atTime(LocalTime.MIN);
 
-        List<Booking> previousBookings = bookingRepository.findByRoomAndStatusNotAndEndBetweenOrderByEndDesc(
-                room, BookingStatus.CANCELED, startOfDay, dateTime);
+        List<Booking> previousBookings = bookingRepository.findByRoomAndStatusNotInAndEndBetweenOrderByEndDesc(
+                room, NON_ACTIVE_STATUSES, startOfDay, dateTime);
 
         if (previousBookings.isEmpty()) return Optional.empty();
 
@@ -155,8 +158,8 @@ public class BookingService {
         Room room = roomService.findRoomByIdStrict(roomId);
         LocalDateTime endOfDay = dateTime.toLocalDate().atTime(LocalTime.MAX);
 
-        List<Booking> nextBookings = bookingRepository.findByRoomAndStatusNotAndStartBetweenOrderByStartAsc(
-                room, BookingStatus.CANCELED, dateTime, endOfDay);
+        List<Booking> nextBookings = bookingRepository.findByRoomAndStatusNotInAndStartBetweenOrderByStartAsc(
+                room, NON_ACTIVE_STATUSES, dateTime, endOfDay);
 
         if (nextBookings.isEmpty()) return Optional.empty();
 
@@ -170,8 +173,8 @@ public class BookingService {
             Long roomId, LocalDateTime start, LocalDateTime end) {
         Room room = roomService.findRoomByIdStrict(roomId);
 
-        return bookingRepository.findAllByRoomAndEndAfterAndStartBeforeAndStatusNotOrderByStartAsc(
-                room, start, end, BookingStatus.CANCELED)
+        return bookingRepository.findAllByRoomAndEndAfterAndStartBeforeAndStatusNotInOrderByStartAsc(
+                room, start, end, NON_ACTIVE_STATUSES)
                 .stream()
                 .map(booking -> BookingResponseWithPersonDTO.builder()
                         .bookingResponseDTO(bookingMapper.toResponseDto(booking))
