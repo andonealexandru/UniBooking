@@ -48,6 +48,7 @@ public class BookingService {
 
         booking.setRoom(room);
         booking.setPerson(person);
+        booking.setStatus(BookingStatus.PENDING);
 
         bookingRepository.save(booking);
     }
