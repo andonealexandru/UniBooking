@@ -6,11 +6,16 @@ import com.unibooking.domain.Room;
 import com.unibooking.exception.RoomNotFoundException;
 import com.unibooking.repository.RoomRepository;
 import com.unibooking.service.dto.RoomDTO;
+import com.unibooking.service.dto.RoomResponseDTO;
 import com.unibooking.service.mapper.RoomMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
@@ -32,9 +37,25 @@ public class RoomService {
     public Room findRoomByCodeStrict(String code) {
         return roomRepository
                 .findByCode(code)
-                .orElseThrow(() -> new RoomNotFoundException("Building " + code + " not found."));
+                .orElseThrow(() -> new RoomNotFoundException("Room " + code + " not found."));
     }
 
+    public Room findRoomByIdStrict(Long id) {
+        return roomRepository
+                .findById(id)
+                .orElseThrow(() -> new RoomNotFoundException("Room " + id + " not found."));
+    }
+
+    public List<RoomResponseDTO> findAllRoomsForBuilding(Long id) {
+        Building building = buildingService.findBuildingByIdStrict(id);
+
+        return roomRepository
+                .findAllByBuilding(building)
+                .stream().map(roomMapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public Page<RoomDTO> findAllRooms(Pageable pageable) {
         return roomRepository
                 .findAll(pageable)
