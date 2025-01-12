@@ -8,6 +8,7 @@ import lombok.Value;
 public class RoomResponseDTO {
     Long id;
     String code;
+    String buildingCode;
     Integer capacity;
     String workstationType;
     Integer workstationCount;

@@ -11,7 +11,8 @@ public interface RoomMapper {
 
     @Mapping(target = "buildingCode", source = "building.code")
     RoomDTO toDto(Room entity);
-
+    
+    @Mapping(target = "buildingCode", source = "building.code")
     RoomResponseDTO toResponseDto(Room entity);
 
     Room toEntity(RoomDTO dto);

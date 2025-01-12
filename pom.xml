@@ -113,6 +113,14 @@
             <version>3.4.1</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-jpamodelgen -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jpamodelgen</artifactId>
+            <version>6.6.4.Final</version>
+            <type>pom</type>
+            <scope>provided</scope>
+        </dependency>
 
 
     </dependencies>

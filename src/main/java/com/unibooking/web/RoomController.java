@@ -3,10 +3,9 @@ package com.unibooking.web;
 import com.unibooking.domain.enumeration.WorkstationType;
 import com.unibooking.exception.StartAfterEndException;
 import com.unibooking.service.BookingService;
+import com.unibooking.service.RoomFinderService;
 import com.unibooking.service.RoomService;
-import com.unibooking.service.dto.BookingResponseDTO;
-import com.unibooking.service.dto.BookingResponseWithPersonDTO;
-import com.unibooking.service.dto.RoomDTO;
+import com.unibooking.service.dto.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -28,6 +27,7 @@ public class RoomController {
 
     private final RoomService roomService;
     private final BookingService bookingService;
+    private final RoomFinderService roomFinderService;
 
     @PostMapping
     private ResponseEntity<Void> createRoom(@RequestBody @Valid RoomDTO roomDTO) {
@@ -80,5 +80,10 @@ public class RoomController {
     @GetMapping("/workstation-types")
     private ResponseEntity<List<WorkstationType>> getAllWorkstationTypes() {
         return ResponseEntity.ok(List.of(WorkstationType.values()));
+    }
+
+    @GetMapping("/find")
+    private ResponseEntity<List<EmptyRoomResponseDTO>> findRoom(@Valid EmptyRoomRequestDTO request) {
+        return ResponseEntity.ok(roomFinderService.findAllRoomsWithSlots(request));
     }
 }
