@@ -1,5 +1,6 @@
 package com.unibooking.web;
 
+import com.unibooking.domain.enumeration.WorkstationType;
 import com.unibooking.exception.StartAfterEndException;
 import com.unibooking.service.BookingService;
 import com.unibooking.service.RoomService;
@@ -74,5 +75,10 @@ public class RoomController {
             throw new StartAfterEndException("Start date should be before end date");
 
         return ResponseEntity.ok(bookingService.findAllBookingsBetweenDatesForRoom(id, start, end));
+    }
+
+    @GetMapping("/workstation-types")
+    private ResponseEntity<List<WorkstationType>> getAllWorkstationTypes() {
+        return ResponseEntity.ok(List.of(WorkstationType.values()));
     }
 }
