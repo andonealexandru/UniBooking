@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -99,12 +100,16 @@ public class BookingService {
         return bookingsInInterval.isEmpty();
     }
 
-    public List<BookingResponseDTO> findAllBookingsForRoomAndDate(Long id, LocalDate date) {
+    public List<BookingResponseWithPersonDTO> findAllBookingsForRoomAndDate(Long id, LocalDate date) {
         Room room = roomService.findRoomByIdStrict(id);
 
         return bookingRepository
-                .findAllByRoomAndDate(room, date)
-                .stream().map(bookingMapper::toResponseDto)
+                .findAllByRoomAndEndAfterAndStartBeforeOrderByStartAsc(
+                        room, date.atTime(LocalTime.MIN), date.atTime(LocalTime.MAX))
+                .stream().map(booking -> BookingResponseWithPersonDTO.builder()
+                        .bookingResponseDTO(bookingMapper.toResponseDto(booking))
+                        .personResponseDTO(personMapper.toResponseDTO(booking.getPerson()))
+                        .build())
                 .collect(Collectors.toList());
     }
 

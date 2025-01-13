@@ -53,6 +53,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     // find all bookings overlapping
     List<Booking> findAllByRoomAndEndAfterAndStartBeforeAndStatusNotInOrderByStartAsc(Room room, LocalDateTime start, LocalDateTime end, List<BookingStatus> status);
 
+    // find all bookings overlapping (no status)
+    List<Booking> findAllByRoomAndEndAfterAndStartBeforeOrderByStartAsc(Room room, LocalDateTime start, LocalDateTime end);
+
     @Modifying
     @Query("UPDATE Booking b SET b.status = :newStatus WHERE b.end <= :date AND b.status = :oldStatus")
     int updateReservationsWithEndBeforeDate(@Param("date") LocalDateTime date,

@@ -41,7 +41,7 @@ public class RoomController {
     }
 
     @GetMapping("/{id}/bookings")
-    private ResponseEntity<List<BookingResponseDTO>> getAllBookingsInDayRoom(@PathVariable Long id, @RequestParam LocalDate date) {
+    private ResponseEntity<List<BookingResponseWithPersonDTO>> getAllBookingsInDayRoom(@PathVariable Long id, @RequestParam LocalDate date) {
         return ResponseEntity.ok(bookingService.findAllBookingsForRoomAndDate(id, date));
     }
 
