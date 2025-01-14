@@ -6,16 +6,16 @@ import com.unibooking.domain.Room;
 import com.unibooking.domain.enumeration.BookingStatus;
 import com.unibooking.exception.BookingNotFoundException;
 import com.unibooking.exception.RoomNotAvailableException;
+import com.unibooking.exception.RoomNotFoundException;
 import com.unibooking.exception.UnauthorizedActionException;
 import com.unibooking.repository.BookingRepository;
-import com.unibooking.service.dto.BookingDTO;
-import com.unibooking.service.dto.BookingResponseDTO;
-import com.unibooking.service.dto.BookingResponseWithPersonDTO;
+import com.unibooking.service.dto.*;
 import com.unibooking.service.mapper.BookingMapper;
 import com.unibooking.service.mapper.PersonMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -39,6 +39,7 @@ public class BookingService {
     private final PersonMapper personMapper;
 
     private final RoomService roomService;
+    private final PersonService personService;
     private final BuildingService buildingService;
     private final AuthenticationService authenticationService;
 
@@ -186,6 +187,32 @@ public class BookingService {
                         .personResponseDTO(personMapper.toResponseDTO(booking.getPerson()))
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public int processListOfBookings(List<BookingWithPersonDTO> bookings) {
+        List<Booking> bookingsToSave = bookings.stream()
+                .map(this::processBooking)
+                .filter(Objects::nonNull).toList();
+
+        return bookingsToSave.size();
+    }
+
+    public Booking processBooking(BookingWithPersonDTO booking) {
+        Optional<Room> room = roomService.findRoomByCode(booking.booking().getRoomCode());
+        Optional<Person> person = personService.findPersonByCode(booking.personId());
+
+        if (room.isEmpty() || person.isEmpty()) return null;
+
+        Booking newBooking = bookingMapper.toEntity(booking.booking());
+        newBooking.setStatus(BookingStatus.PENDING);
+        newBooking.setPerson(person.get());
+        newBooking.setRoom(room.get());
+
+        if (bookingRepository.findByRoomAndPersonAndStartAndEnd(
+                newBooking.getRoom(), newBooking.getPerson(), newBooking.getStart(), newBooking.getEnd()).isPresent())
+            return null;
+
+        return bookingRepository.save(newBooking);
     }
 
     public void findRoomAvailableForInterval() {

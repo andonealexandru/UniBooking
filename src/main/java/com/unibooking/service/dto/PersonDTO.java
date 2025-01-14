@@ -10,4 +10,5 @@ public class PersonDTO {
     String lastName;
     String email;
     String password;
+    String code;
 }

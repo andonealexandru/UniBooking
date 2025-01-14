@@ -10,6 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @AllArgsConstructor
 public class PersonService {
@@ -18,10 +20,8 @@ public class PersonService {
     private PasswordEncoder passwordEncoder;
     private PersonMapper personMapper;
 
-    public Person getCurrentUser() {
-        return personRepository
-                .findById(10000L)
-                .orElseThrow(() -> new PersonNotFoundException("Current user not found"));
+    public Optional<Person> findPersonByCode(String code) {
+        return personRepository.findByCode(code);
     }
 
     public Person findPersonByEmail(String email) {

@@ -67,4 +67,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     int updateReservationsWithStartBeforeDate(@Param("date") LocalDateTime date,
                                               @Param("oldStatus") BookingStatus oldStatus,
                                               @Param("newStatus") BookingStatus newStatus);
+
+    Optional<Booking> findByRoomAndPersonAndStartAndEnd(Room room, Person person, LocalDateTime start, LocalDateTime end);
 }

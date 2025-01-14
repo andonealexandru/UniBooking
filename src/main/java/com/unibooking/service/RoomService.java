@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -35,9 +36,12 @@ public class RoomService {
     }
 
     public Room findRoomByCodeStrict(String code) {
-        return roomRepository
-                .findByCode(code)
+        return findRoomByCode(code)
                 .orElseThrow(() -> new RoomNotFoundException("Room " + code + " not found."));
+    }
+
+    public Optional<Room> findRoomByCode(String code) {
+        return roomRepository.findByCode(code);
     }
 
     public Room findRoomByIdStrict(Long id) {

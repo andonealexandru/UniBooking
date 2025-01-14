@@ -27,4 +27,7 @@ public class Person {
 
     @Column(name = "role")
     private String role;
+
+    @Column(name = "code")
+    private String code;
 }
