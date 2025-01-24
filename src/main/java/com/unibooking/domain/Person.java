@@ -1,5 +1,6 @@
 package com.unibooking.domain;
 
+import com.unibooking.domain.enumeration.Role;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,8 +26,9 @@ public class Person {
     @Column(name = "password")
     private String password;
 
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "role")
-    private String role;
+    private Role role;
 
     @Column(name = "code")
     private String code;

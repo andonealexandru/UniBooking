@@ -46,7 +46,7 @@ public class SecurityConfig {
                     return configuration;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/signin").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/signin", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated() // Protect all other endpoints
                 )
                 .sessionManagement(sess -> sess
