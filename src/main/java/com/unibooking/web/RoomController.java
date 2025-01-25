@@ -35,6 +35,18 @@ public class RoomController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}")
+    private ResponseEntity<Void> updateRoom(@PathVariable Long id, @RequestBody @Valid RoomDTO roomDTO) {
+        roomService.updateRoom(id, roomDTO);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}")
+    private ResponseEntity<Void> deleteRoom(@PathVariable Long id) {
+        roomService.deleteRoom(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping
     private ResponseEntity<Page<RoomDTO>> getRoomsPage(Pageable pageable) {
         return ResponseEntity.ok(roomService.findAllRooms(pageable));

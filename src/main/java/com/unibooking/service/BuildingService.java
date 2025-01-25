@@ -32,6 +32,7 @@ public class BuildingService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public void createBuilding(BuildingDTO buildingDTO) {
         Building newBuilding = buildingMapper.toEntity(buildingDTO);
+        newBuilding.setIsActive(true);
         buildingRepository.save(newBuilding);
     }
 

@@ -17,7 +17,7 @@ public interface RoomRepository extends JpaRepository<Room, Long>, JpaSpecificat
 
     Optional<Room> findByCode(String code);
 
-    List<Room> findAllByBuilding(Building building);
+    List<Room> findAllByBuildingOrderByCode(Building building);
 
     List<Room> findAllByBuilding_CodeOrCodeOrWorkstationTypeOrCapacityOrWorkstationCount(String buildingCode,
                                                                                     String roomCode,
