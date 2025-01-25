@@ -18,4 +18,5 @@ public class BookingResponseDTO {
     String buildingCode;
     String roomCode;
     String status;
+    String description;
 }

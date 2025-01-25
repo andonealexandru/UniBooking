@@ -24,4 +24,6 @@ public class BookingDTO {
 
     @NotNull
     String roomCode;
+
+    String description;
 }
