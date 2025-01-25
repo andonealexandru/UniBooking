@@ -35,6 +35,15 @@ public class RoomService {
         roomRepository.save(newRoom);
     }
 
+    public void deleteAllRoomsInBuilding(Long id) {
+        Building building = buildingService.findBuildingByIdStrict(id);
+        List<Room> rooms = roomRepository.findAllByBuilding(building);
+
+        rooms.forEach(room -> room.setIsActive(false));
+
+        roomRepository.saveAll(rooms);
+    }
+
     public Room findRoomByCodeStrict(String code) {
         return findRoomByCode(code)
                 .orElseThrow(() -> new RoomNotFoundException("Room " + code + " not found."));

@@ -1,6 +1,5 @@
 package com.unibooking.service.dto;
 
-import com.unibooking.validation.ValidTimeRange;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Value;

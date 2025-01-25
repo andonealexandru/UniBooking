@@ -1,8 +1,10 @@
 package com.unibooking.service;
 
 import com.unibooking.domain.Building;
+import com.unibooking.domain.Person;
 import com.unibooking.exception.BuildingNotFoundException;
 import com.unibooking.repository.BuildingRepository;
+import com.unibooking.repository.PersonBuildingRepository;
 import com.unibooking.service.dto.BuildingDTO;
 import com.unibooking.service.dto.BuildingResponseDTO;
 import com.unibooking.service.dto.RoomResponseDTO;
@@ -22,13 +24,33 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class BuildingService {
 
+    private final AuthenticationService authenticationService;
     private final BuildingRepository buildingRepository;
+    private final PersonBuildingRepository personBuildingRepository;
     private final BuildingMapper buildingMapper;
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void createBuilding(BuildingDTO buildingDTO) {
         Building newBuilding = buildingMapper.toEntity(buildingDTO);
         buildingRepository.save(newBuilding);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void updateBuilding(Long id, BuildingDTO buildingDTO) {
+        Building building = findBuildingByIdStrict(id);
+
+        building.setAddress(buildingDTO.getAddress());
+        building.setStart(buildingDTO.getStart());
+        building.setEnd(buildingDTO.getEnd());
+
+        buildingRepository.save(building);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void deleteBuilding(Long id) {
+        Building building = findBuildingByIdStrict(id);
+        building.setIsActive(false);
+        buildingRepository.save(building);
     }
 
     public Building findBuildingByCodeStrict(String code) {
@@ -51,8 +73,17 @@ public class BuildingService {
 
     public List<BuildingResponseDTO> findAllBuildings() {
         return buildingRepository
-                .findAll()
+                .findAllByOrderByCode()
                 .stream().map(buildingMapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<BuildingResponseDTO> findAllBuildingsForMe() {
+        Person person = authenticationService.getCurrentUser();
+
+        return personBuildingRepository.findAllByPersonBuildingId_Person(person)
+                .stream()
+                .map(pb -> buildingMapper.toResponseDto(pb.getPersonBuildingId().getBuilding()))
                 .collect(Collectors.toList());
     }
 

@@ -2,12 +2,15 @@ package com.unibooking.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalTime;
 
 @Entity
 @Table(name = "building")
 @Data
+@SQLRestriction("is_active <> 'FALSE'")
 public class Building {
 
     @Id
@@ -26,5 +29,8 @@ public class Building {
 
     @Column(name = "end_time")
     private LocalTime end;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
 
 }

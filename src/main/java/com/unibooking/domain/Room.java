@@ -3,10 +3,12 @@ package com.unibooking.domain;
 import com.unibooking.domain.enumeration.WorkstationType;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "room")
 @Data
+@SQLRestriction("is_active <> 'FALSE'")
 public class Room {
 
     @Id
@@ -31,4 +33,6 @@ public class Room {
     @Column(name = "workstation_count")
     private Integer workstationCount;
 
+    @Column(name = "is_active")
+    private Boolean isActive;
 }

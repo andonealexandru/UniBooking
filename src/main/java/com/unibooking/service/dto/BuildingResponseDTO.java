@@ -11,6 +11,6 @@ public class BuildingResponseDTO {
     Long id;
     String code;
     String address;
-    LocalTime start;
-    LocalTime end;
+    String start;
+    String end;
 }
