@@ -14,5 +14,5 @@ public interface PersonBuildingRepository extends JpaRepository<PersonBuilding, 
 
     Optional<PersonBuilding> findByPersonBuildingId(PersonBuildingId personBuildingId);
 
-    List<PersonBuilding> findAllByPersonBuildingId_Person(Person person);
+    List<PersonBuilding> findAllByPersonBuildingId_PersonOrderByPersonBuildingId_Building_Code(Person person);
 }

@@ -7,13 +7,11 @@ import com.unibooking.repository.BuildingRepository;
 import com.unibooking.repository.PersonBuildingRepository;
 import com.unibooking.service.dto.BuildingDTO;
 import com.unibooking.service.dto.BuildingResponseDTO;
-import com.unibooking.service.dto.RoomResponseDTO;
 import com.unibooking.service.mapper.BuildingMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -82,7 +80,7 @@ public class BuildingService {
     public List<BuildingResponseDTO> findAllBuildingsForMe() {
         Person person = authenticationService.getCurrentUser();
 
-        return personBuildingRepository.findAllByPersonBuildingId_Person(person)
+        return personBuildingRepository.findAllByPersonBuildingId_PersonOrderByPersonBuildingId_Building_Code(person)
                 .stream()
                 .map(pb -> buildingMapper.toResponseDto(pb.getPersonBuildingId().getBuilding()))
                 .collect(Collectors.toList());
