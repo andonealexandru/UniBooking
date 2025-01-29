@@ -10,16 +10,15 @@ import com.unibooking.repository.PersonBuildingRepository;
 import com.unibooking.repository.PersonRepository;
 import com.unibooking.service.dto.PersonDTO;
 import com.unibooking.service.dto.PersonResponseDTO;
+import com.unibooking.service.dto.PersonWithAccessResponseDTO;
+import com.unibooking.service.mapper.BuildingMapper;
 import com.unibooking.service.mapper.PersonMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -33,6 +32,7 @@ public class PersonService {
 
     private PasswordEncoder passwordEncoder;
     private PersonMapper personMapper;
+    private BuildingMapper buildingMapper;
 
     public Optional<Person> findPersonByCode(String code) {
         return personRepository.findByCode(code);
@@ -86,17 +86,21 @@ public class PersonService {
         personBuilding.ifPresent(value -> personBuildingRepository.delete(value));
     }
 
-    public List<PersonResponseDTO> findAllPeople(Optional<Role> type) {
+    public List<PersonWithAccessResponseDTO> findAllPeople(Optional<Role> type) {
+        List<Person> personList;
+
         if (type.isPresent()) {
-            return personRepository.findAllByRole(type.get())
-                    .stream()
-                    .map(personMapper::toResponseDTO)
-                    .collect(Collectors.toList());
+            personList = personRepository.findAllByRole(type.get());
+        }
+        else {
+            personList = personRepository.findAll();
         }
 
-        return personRepository.findAll()
-                .stream()
-                .map(personMapper::toResponseDTO)
+        return personList.stream()
+                .map(person -> new PersonWithAccessResponseDTO(
+                        personMapper.toResponseDTO(person),
+                        buildingService.findAllBuildingsForPerson(person)
+                ))
                 .collect(Collectors.toList());
     }
 

@@ -3,6 +3,7 @@ package com.unibooking.web;
 import com.unibooking.domain.enumeration.Role;
 import com.unibooking.service.PersonService;
 import com.unibooking.service.dto.PersonResponseDTO;
+import com.unibooking.service.dto.PersonWithAccessResponseDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class PersonController {
     private final PersonService personService;
 
     @GetMapping
-    private ResponseEntity<List<PersonResponseDTO>> retrieveAllPeople(@RequestParam(required = false) Optional<Role> type) {
+    private ResponseEntity<List<PersonWithAccessResponseDTO>> retrieveAllPeople(@RequestParam(required = false) Optional<Role> type) {
         return ResponseEntity.ok(personService.findAllPeople(type));
     }
 

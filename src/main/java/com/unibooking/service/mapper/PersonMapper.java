@@ -9,5 +9,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface PersonMapper {
     Person toEntity(PersonDTO dto);
+    @Mapping(source = "code", target = "code")
     PersonResponseDTO toResponseDTO(Person entity);
 }

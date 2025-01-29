@@ -11,4 +11,5 @@ public class PersonResponseDTO {
     String lastName;
     String email;
     String role;
+    String code;
 }

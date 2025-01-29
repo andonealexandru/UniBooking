@@ -79,7 +79,10 @@ public class BuildingService {
 
     public List<BuildingResponseDTO> findAllBuildingsForMe() {
         Person person = authenticationService.getCurrentUser();
+        return findAllBuildingsForPerson(person);
+    }
 
+    public List<BuildingResponseDTO> findAllBuildingsForPerson(Person person) {
         return personBuildingRepository.findAllByPersonBuildingId_PersonOrderByPersonBuildingId_Building_Code(person)
                 .stream()
                 .map(pb -> buildingMapper.toResponseDto(pb.getPersonBuildingId().getBuilding()))
