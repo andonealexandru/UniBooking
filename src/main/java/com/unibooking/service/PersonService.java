@@ -8,12 +8,12 @@ import com.unibooking.domain.enumeration.Role;
 import com.unibooking.exception.PersonNotFoundException;
 import com.unibooking.repository.PersonBuildingRepository;
 import com.unibooking.repository.PersonRepository;
-import com.unibooking.service.dto.PersonDTO;
-import com.unibooking.service.dto.PersonResponseDTO;
-import com.unibooking.service.dto.PersonWithAccessResponseDTO;
+import com.unibooking.service.dto.*;
 import com.unibooking.service.mapper.BuildingMapper;
 import com.unibooking.service.mapper.PersonMapper;
+import com.unibooking.service.specification.PersonSpecification;
 import lombok.AllArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -66,6 +66,24 @@ public class PersonService {
         personRepository.save(person);
     }
 
+    public void updatePerson(Long id, PersonUpdateRequestDTO personDTO) {
+        Person person = findPersonByIdStrict(id);
+
+        person.setRole(Role.valueOf(personDTO.role()));
+        person.setCode(personDTO.code());
+        person.setEmail(personDTO.email());
+        person.setFirstName(personDTO.firstName());
+        person.setLastName(personDTO.lastName());
+
+        personRepository.save(person);
+
+        removeAllBuildingsFromPerson(person);
+
+        for (BuildingResponseDTO building : personDTO.accessibleBuildings()) {
+            assignBuildingToPerson(person.getId(), building.getId());
+        }
+    }
+
     public void assignBuildingToPerson(Long personId, Long buildingId) {
         Person person = findPersonByIdStrict(personId);
         Building building = buildingService.findBuildingByIdStrict(buildingId);
@@ -86,15 +104,13 @@ public class PersonService {
         personBuilding.ifPresent(value -> personBuildingRepository.delete(value));
     }
 
-    public List<PersonWithAccessResponseDTO> findAllPeople(Optional<Role> type) {
-        List<Person> personList;
+    public void removeAllBuildingsFromPerson(Person person) {
+        List<PersonBuilding> buildings = personBuildingRepository.findAllByPersonBuildingId_Person(person);
+        personBuildingRepository.deleteAll(buildings);
+    }
 
-        if (type.isPresent()) {
-            personList = personRepository.findAllByRole(type.get());
-        }
-        else {
-            personList = personRepository.findAll();
-        }
+    public List<PersonWithAccessResponseDTO> findAllPeople(Role type, String query) {
+        List<Person> personList = personRepository.findAll(buildSpecification(type, query));
 
         return personList.stream()
                 .map(person -> new PersonWithAccessResponseDTO(
@@ -102,6 +118,24 @@ public class PersonService {
                         buildingService.findAllBuildingsForPerson(person)
                 ))
                 .collect(Collectors.toList());
+    }
+
+    private Specification<Person> buildSpecification(Role type, String query) {
+        Specification<Person> specification = PersonSpecification.noSpecifiation();
+
+        if (type != null) {
+            specification = specification.and(PersonSpecification.hasRole(type));
+        }
+        if (query != null && !query.isBlank()) {
+            Specification<Person> searchSpecification = PersonSpecification.emailContains(query);
+            searchSpecification = searchSpecification.or(PersonSpecification.codeContains(query));
+            searchSpecification = searchSpecification.or(PersonSpecification.firstNameContains(query));
+            searchSpecification = searchSpecification.or(PersonSpecification.lastNameContains(query));
+
+            specification = specification.and(searchSpecification);
+        }
+
+        return specification;
     }
 
 }
